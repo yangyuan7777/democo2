@@ -489,6 +489,7 @@
         .chart-container {
             height: 300px;
             margin: 20px 0;
+            position: relative;
         }
         
         .gallery {
@@ -549,7 +550,7 @@
             gap: 15px;
         }
         
-        .stat-card {
+        .stat-card-main {
             flex: 1;
             min-width: 150px;
             padding: 15px;
@@ -577,6 +578,15 @@
             color: #777;
             font-size: 12px;
             border-top: 1px solid var(--border-color);
+        }
+        
+        .chart-loading {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100%;
+            color: #666;
+            font-style: italic;
         }
         
         @media (max-width: 768px) {
@@ -629,19 +639,19 @@
         <div id="main-page">
             <!-- 统计信息栏 -->
             <div class="stats-bar">
-                <div class="stat-card">
+                <div class="stat-card-main">
                     <div class="stat-card-value">42</div>
                     <div class="stat-card-label">示范工程总数</div>
                 </div>
-                <div class="stat-card">
+                <div class="stat-card-main">
                     <div class="stat-card-value">12,580</div>
                     <div class="stat-card-label">年减排量(吨)</div>
                 </div>
-                <div class="stat-card">
+                <div class="stat-card-main">
                     <div class="stat-card-value">6</div>
                     <div class="stat-card-label">零碳服务区</div>
                 </div>
-                <div class="stat-card">
+                <div class="stat-card-main">
                     <div class="stat-card-value">15</div>
                     <div class="stat-card-label">绿色收费站</div>
                 </div>
@@ -862,7 +872,10 @@
                             </div>
                         </div>
                         
-                        <div class="chart-container">
+                        <div class="chart-container" id="chart-container">
+                            <div class="chart-loading" id="chart-loading">
+                                图表加载中...
+                            </div>
                             <canvas id="reduction-chart"></canvas>
                         </div>
                     </div>
@@ -1031,83 +1044,101 @@
 
         // 创建减排效果图表
         function createReductionChart(project) {
-            const ctx = document.getElementById('reduction-chart').getContext('2d');
+            const ctx = document.getElementById('reduction-chart');
+            const loadingElement = document.getElementById('chart-loading');
+            
+            // 检查Chart.js是否已加载
+            if (typeof Chart === 'undefined') {
+                loadingElement.textContent = '图表库加载失败，请刷新页面重试';
+                return;
+            }
+            
+            // 隐藏加载提示
+            loadingElement.style.display = 'none';
+            ctx.style.display = 'block';
             
             // 如果已有图表实例，先销毁
             if (window.reductionChart) {
                 window.reductionChart.destroy();
             }
             
-            window.reductionChart = new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: ['碳排放减少', '能源自给率', '节电量(万kWh)', '节水量(吨)'],
-                    datasets: [{
-                        label: '减排成效',
-                        data: [
-                            project.co2Reduction / 10, // 缩放以便在图表中更好显示
-                            project.energySelf,
-                            project.energySave,
-                            project.waterSave / 100 // 缩放以便在图表中更好显示
-                        ],
-                        backgroundColor: [
-                            'rgba(0, 108, 183, 0.7)',
-                            'rgba(0, 168, 84, 0.7)',
-                            'rgba(247, 147, 30, 0.7)',
-                            'rgba(102, 102, 102, 0.7)'
-                        ],
-                        borderColor: [
-                            'rgb(0, 108, 183)',
-                            'rgb(0, 168, 84)',
-                            'rgb(247, 147, 30)',
-                            'rgb(102, 102, 102)'
-                        ],
-                        borderWidth: 1
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            title: {
-                                display: true,
-                                text: '数值'
-                            }
-                        }
+            try {
+                window.reductionChart = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: ['碳排放减少', '能源自给率', '节电量(万kWh)', '节水量(吨)'],
+                        datasets: [{
+                            label: '减排成效',
+                            data: [
+                                project.co2Reduction / 10, // 缩放以便在图表中更好显示
+                                project.energySelf,
+                                project.energySave,
+                                project.waterSave / 100 // 缩放以便在图表中更好显示
+                            ],
+                            backgroundColor: [
+                                'rgba(0, 108, 183, 0.7)',
+                                'rgba(0, 168, 84, 0.7)',
+                                'rgba(247, 147, 30, 0.7)',
+                                'rgba(102, 102, 102, 0.7)'
+                            ],
+                            borderColor: [
+                                'rgb(0, 108, 183)',
+                                'rgb(0, 168, 84)',
+                                'rgb(247, 147, 30)',
+                                'rgb(102, 102, 102)'
+                            ],
+                            borderWidth: 1
+                        }]
                     },
-                    plugins: {
-                        title: {
-                            display: true,
-                            text: '项目减排成效统计',
-                            font: {
-                                size: 16
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                title: {
+                                    display: true,
+                                    text: '数值'
+                                }
                             }
                         },
-                        tooltip: {
-                            callbacks: {
-                                label: function(context) {
-                                    let label = context.dataset.label || '';
-                                    if (label) {
-                                        label += ': ';
+                        plugins: {
+                            title: {
+                                display: true,
+                                text: '项目减排成效统计',
+                                font: {
+                                    size: 16
+                                }
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        let label = context.dataset.label || '';
+                                        if (label) {
+                                            label += ': ';
+                                        }
+                                        if (context.dataIndex === 0) {
+                                            label += project.co2Reduction + ' 吨';
+                                        } else if (context.dataIndex === 2) {
+                                            label += project.energySave + ' 万kWh';
+                                        } else if (context.dataIndex === 3) {
+                                            label += project.waterSave + ' 吨';
+                                        } else {
+                                            label += context.parsed.y + '%';
+                                        }
+                                        return label;
                                     }
-                                    if (context.dataIndex === 0) {
-                                        label += project.co2Reduction + ' 吨';
-                                    } else if (context.dataIndex === 2) {
-                                        label += project.energySave + ' 万kWh';
-                                    } else if (context.dataIndex === 3) {
-                                        label += project.waterSave + ' 吨';
-                                    } else {
-                                        label += context.parsed.y + '%';
-                                    }
-                                    return label;
                                 }
                             }
                         }
                     }
-                }
-            });
+                });
+            } catch (error) {
+                console.error('创建图表时出错:', error);
+                loadingElement.textContent = '创建图表时出错: ' + error.message;
+                loadingElement.style.display = 'block';
+                ctx.style.display = 'none';
+            }
         }
 
         // 初始化
@@ -1117,6 +1148,17 @@
             const projectId = urlParams.get('project');
             if (projectId && projects[projectId]) {
                 showProjectDetail(projectId);
+            }
+            
+            // 添加错误处理，防止Chart.js加载失败导致整个页面无法使用
+            if (typeof Chart === 'undefined') {
+                console.warn('Chart.js未正确加载，图表功能将不可用');
+                
+                // 隐藏所有图表相关元素
+                const chartContainers = document.querySelectorAll('.chart-container');
+                chartContainers.forEach(container => {
+                    container.innerHTML = '<div class="chart-loading">图表功能加载失败，请刷新页面重试</div>';
+                });
             }
         });
     </script>
