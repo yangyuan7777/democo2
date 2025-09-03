@@ -1,0 +1,1124 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>湖北交投 - 低碳示范工程库</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --hbtc-blue: #006cb7;
+            --hbtc-light-blue: #e6f0ff;
+            --hbtc-green: #00a854;
+            --hbtc-light-green: #e8f5e9;
+            --dark-color: #333333;
+            --light-color: #f8f9fa;
+            --border-color: #e0e0e0;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: "PingFang SC", "Helvetica Neue", Arial, sans-serif;
+        }
+        
+        body {
+            background-color: #f5f7fa;
+            color: #333;
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 15px;
+        }
+        
+        header {
+            background: linear-gradient(135deg, var(--hbtc-blue), #0088cc);
+            color: white;
+            padding: 15px 0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .header-content {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .logo-area {
+            display: flex;
+            align-items: center;
+        }
+        
+        .logo {
+            width: 40px;
+            height: 40px;
+            background-color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 10px;
+        }
+        
+        .logo i {
+            color: var(--hbtc-blue);
+            font-size: 20px;
+        }
+        
+        h1 {
+            font-size: 18px;
+            font-weight: 600;
+        }
+        
+        .subtitle {
+            font-size: 12px;
+            opacity: 0.9;
+        }
+        
+        .user-area {
+            display: flex;
+            align-items: center;
+        }
+        
+        .user-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background-color: rgba(255, 255, 255, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        /* 主页面样式 */
+        #main-page {
+            display: block;
+        }
+        
+        #detail-page {
+            display: none;
+        }
+        
+        .view-toggle {
+            display: flex;
+            background-color: white;
+            border-radius: 30px;
+            margin: 15px 0;
+            overflow: hidden;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+        
+        .view-option {
+            flex: 1;
+            padding: 10px;
+            text-align: center;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .view-option.active {
+            background-color: var(--hbtc-blue);
+            color: white;
+        }
+        
+        .search-filter {
+            background-color: white;
+            padding: 15px;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            margin-bottom: 15px;
+        }
+        
+        .search-box {
+            display: flex;
+            margin-bottom: 15px;
+        }
+        
+        .search-box input {
+            flex: 1;
+            padding: 12px 15px;
+            border: 1px solid var(--border-color);
+            border-radius: 25px 0 0 25px;
+            font-size: 16px;
+        }
+        
+        .search-box button {
+            padding: 12px 20px;
+            background-color: var(--hbtc-blue);
+            color: white;
+            border: none;
+            border-radius: 0 25px 25px 0;
+            cursor: pointer;
+        }
+        
+        .filter-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+        
+        .filter-select {
+            flex: 1;
+            min-width: 120px;
+            padding: 10px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            background-color: var(--light-color);
+            font-size: 14px;
+        }
+        
+        .filter-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 10px;
+        }
+        
+        .filter-tag {
+            padding: 6px 12px;
+            background-color: var(--hbtc-light-blue);
+            color: var(--hbtc-blue);
+            border-radius: 15px;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .filter-tag i {
+            margin-left: 5px;
+            cursor: pointer;
+        }
+        
+        .content-area {
+            display: none;
+        }
+        
+        .content-area.active {
+            display: block;
+        }
+        
+        /* 卡片视图样式 */
+        .card-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 15px;
+        }
+        
+        .card {
+            background-color: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+            transition: transform 0.3s ease;
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .card-badge {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background-color: var(--hbtc-green);
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        
+        .card-img {
+            height: 180px;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .card-img img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.5s ease;
+        }
+        
+        .card:hover .card-img img {
+            transform: scale(1.05);
+        }
+        
+        .card-content {
+            padding: 15px;
+        }
+        
+        .card-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: var(--dark-color);
+        }
+        
+        .card-desc {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 12px;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+        
+        .card-stats {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 12px;
+        }
+        
+        .stat-item {
+            text-align: center;
+            flex: 1;
+        }
+        
+        .stat-value {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--hbtc-blue);
+        }
+        
+        .stat-label {
+            font-size: 12px;
+            color: #888;
+        }
+        
+        .card-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-top: 1px solid var(--border-color);
+            padding-top: 12px;
+        }
+        
+        .card-tag {
+            background-color: var(--hbtc-light-blue);
+            color: var(--hbtc-blue);
+            padding: 4px 10px;
+            border-radius: 15px;
+            font-size: 12px;
+        }
+        
+        .card-button {
+            background-color: var(--hbtc-blue);
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .card-button i {
+            margin-right: 4px;
+        }
+        
+        /* 详情页样式 */
+        .detail-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .back-button {
+            background-color: var(--hbtc-blue);
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 20px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            margin-right: 15px;
+        }
+        
+        .back-button i {
+            margin-right: 5px;
+        }
+        
+        .detail-container {
+            background-color: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+            margin-bottom: 20px;
+        }
+        
+        .detail-hero {
+            height: 250px;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .detail-hero img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .detail-badge {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background-color: var(--hbtc-green);
+            color: white;
+            padding: 6px 12px;
+            border-radius: 4px;
+            font-size: 14px;
+            font-weight: 500;
+        }
+        
+        .detail-content {
+            padding: 20px;
+        }
+        
+        .detail-title {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: var(--dark-color);
+        }
+        
+        .detail-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .meta-item {
+            display: flex;
+            align-items: center;
+            font-size: 14px;
+            color: #666;
+        }
+        
+        .meta-item i {
+            margin-right: 5px;
+            color: var(--hbtc-blue);
+        }
+        
+        .detail-section {
+            margin-bottom: 25px;
+        }
+        
+        .section-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 12px;
+            color: var(--hbtc-blue);
+            border-left: 4px solid var(--hbtc-blue);
+            padding-left: 10px;
+        }
+        
+        .detail-desc {
+            line-height: 1.8;
+            margin-bottom: 15px;
+        }
+        
+        .tech-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+        
+        .tech-item {
+            background-color: var(--light-color);
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 3px solid var(--hbtc-blue);
+        }
+        
+        .tech-title {
+            font-weight: 600;
+            margin-bottom: 5px;
+            color: var(--dark-color);
+        }
+        
+        .tech-desc {
+            font-size: 14px;
+            color: #666;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        
+        .stat-card {
+            background-color: var(--light-color);
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+        }
+        
+        .stat-value-lg {
+            font-size: 24px;
+            font-weight: 600;
+            color: var(--hbtc-blue);
+            margin-bottom: 5px;
+        }
+        
+        .stat-label-lg {
+            font-size: 14px;
+            color: #666;
+        }
+        
+        .chart-container {
+            height: 300px;
+            margin: 20px 0;
+        }
+        
+        .gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+        
+        .gallery-item {
+            height: 150px;
+            border-radius: 8px;
+            overflow: hidden;
+            cursor: pointer;
+        }
+        
+        .gallery-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.3s ease;
+        }
+        
+        .gallery-item:hover img {
+            transform: scale(1.05);
+        }
+        
+        .pagination {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+            gap: 8px;
+        }
+        
+        .pagination button {
+            padding: 8px 12px;
+            background-color: white;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        
+        .pagination button.active {
+            background-color: var(--hbtc-blue);
+            color: white;
+            border-color: var(--hbtc-blue);
+        }
+        
+        .stats-bar {
+            background-color: white;
+            border-radius: 12px;
+            padding: 15px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            margin-bottom: 15px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        
+        .stat-card {
+            flex: 1;
+            min-width: 150px;
+            padding: 15px;
+            background-color: var(--light-color);
+            border-radius: 8px;
+            text-align: center;
+        }
+        
+        .stat-card-value {
+            font-size: 24px;
+            font-weight: 600;
+            color: var(--hbtc-blue);
+            margin-bottom: 5px;
+        }
+        
+        .stat-card-label {
+            font-size: 13px;
+            color: #666;
+        }
+        
+        footer {
+            text-align: center;
+            padding: 20px 0;
+            margin-top: 30px;
+            color: #777;
+            font-size: 12px;
+            border-top: 1px solid var(--border-color);
+        }
+        
+        @media (max-width: 768px) {
+            .card-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .filter-row {
+                flex-direction: column;
+            }
+            
+            .stats-bar {
+                flex-direction: column;
+            }
+            
+            .tech-list, .stats-grid, .gallery {
+                grid-template-columns: 1fr;
+            }
+            
+            .detail-hero {
+                height: 200px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <div class="header-content">
+                <div class="logo-area">
+                    <div class="logo">
+                        <i class="fas fa-leaf"></i>
+                    </div>
+                    <div>
+                        <h1>湖北交投低碳示范工程库</h1>
+                        <div class="subtitle">推动绿色交通建设，助力双碳目标实现</div>
+                    </div>
+                </div>
+                <div class="user-area">
+                    <div class="user-avatar">
+                        <i class="fas fa-user"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="container">
+        <!-- 主页面 -->
+        <div id="main-page">
+            <!-- 统计信息栏 -->
+            <div class="stats-bar">
+                <div class="stat-card">
+                    <div class="stat-card-value">42</div>
+                    <div class="stat-card-label">示范工程总数</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-card-value">12,580</div>
+                    <div class="stat-card-label">年减排量(吨)</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-card-value">6</div>
+                    <div class="stat-card-label">零碳服务区</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-card-value">15</div>
+                    <div class="stat-card-label">绿色收费站</div>
+                </div>
+            </div>
+
+            <div class="view-toggle">
+                <div class="view-option active" data-view="card">
+                    <i class="fas fa-th-large"></i> 卡片视图
+                </div>
+                <div class="view-option" data-view="list">
+                    <i class="fas fa-list"></i> 列表视图
+                </div>
+                <div class="view-option" data-view="map">
+                    <i class="fas fa-map-marker-alt"></i> 地图视图
+                </div>
+            </div>
+
+            <div class="search-filter">
+                <div class="search-box">
+                    <input type="text" placeholder="搜索示范工程名称、地点或技术关键词...">
+                    <button><i class="fas fa-search"></i> 搜索</button>
+                </div>
+                <div class="filter-row">
+                    <select class="filter-select">
+                        <option>全部类型</option>
+                        <option>零碳服务区</option>
+                        <option>绿色收费站</option>
+                        <option>智慧梁厂</option>
+                        <option>低碳服务区</option>
+                        <option>光伏公路</option>
+                    </select>
+                    <select class="filter-select">
+                        <option>全部地区</option>
+                        <option>武汉</option>
+                        <option>宜昌</option>
+                        <option>襄阳</option>
+                        <option>十堰</option>
+                        <option>荆州</option>
+                    </select>
+                    <select class="filter-select">
+                        <option>减排成效</option>
+                        <option>高减排量</option>
+                        <option>中减排量</option>
+                        <option>低减排量</option>
+                    </select>
+                    <select class="filter-select">
+                        <option>项目状态</option>
+                        <option>在建中</option>
+                        <option>已运营</option>
+                        <option>规划中</option>
+                    </select>
+                </div>
+                <div class="filter-tags">
+                    <div class="filter-tag">
+                        零碳服务区 <i class="fas fa-times"></i>
+                    </div>
+                    <div class="filter-tag">
+                        武汉 <i class="fas fa-times"></i>
+                    </div>
+                    <div class="filter-tag">
+                        已运营 <i class="fas fa-times"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 卡片视图 -->
+            <div id="card-view" class="content-area active">
+                <div class="card-container">
+                    <!-- 示例项目1 -->
+                    <div class="card" data-id="1">
+                        <div class="card-img">
+                            <img src="https://images.unsplash.com/photo-1581833971358-2c8b550f87b3?ixlib=rb-1.2.1&auto=format&fit=crop&w=600&q=80" alt="零碳服务区">
+                            <div class="card-badge">零碳服务区</div>
+                        </div>
+                        <div class="card-content">
+                            <h3 class="card-title">沪蓉高速青龙山零碳服务区</h3>
+                            <p class="card-desc">湖北省首个"光储直柔"零碳服务区，集成光伏发电、储能系统、智慧能源管理平台。</p>
+                            <div class="card-stats">
+                                <div class="stat-item">
+                                    <div class="stat-value">1,250</div>
+                                    <div class="stat-label">年减排量(吨)</div>
+                                </div>
+                                <div class="stat-item">
+                                    <div class="stat-value">95%</div>
+                                    <div class="stat-label">能源自给率</div>
+                                </div>
+                            </div>
+                            <div class="card-footer">
+                                <span class="card-tag">武汉</span>
+                                <button class="card-button view-detail-btn"><i class="fas fa-eye"></i> 查看详情</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 示例项目2 -->
+                    <div class="card" data-id="2">
+                        <div class="card-img">
+                            <img src="https://images.unsplash.com/photo-1616587226157-48e49175ee20?ixlib=rb-1.2.1&auto=format&fit=crop&w=600&q=80" alt="绿色收费站">
+                            <div class="card-badge">绿色收费站</div>
+                        </div>
+                        <div class="card-content">
+                            <h3 class="card-title">福银高速武当山绿色收费站</h3>
+                            <p class="card-desc">采用光伏发电、LED智能照明和雨水回收系统，实现能源自给和资源循环利用。</p>
+                            <div class="card-stats">
+                                <div class="stat-item">
+                                    <div class="stat-value">320</div>
+                                    <div class="stat-label">年减排量(吨)</div>
+                                </div>
+                                <div class="stat-item">
+                                    <div class="stat-value">100%</div>
+                                    <div class="stat-label">绿电使用率</div>
+                                </div>
+                            </div>
+                            <div class="card-footer">
+                                <span class="card-tag">十堰</span>
+                                <button class="card-button view-detail-btn"><i class="fas fa-eye"></i> 查看详情</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 示例项目3 -->
+                    <div class="card" data-id="3">
+                        <div class="card-img">
+                            <img src="https://images.unsplash.com/photo-1581578021517-ba0f0031fa0f?ixlib=rb-1.2.1&auto=format&fit=crop&w=600&q=80" alt="智慧梁厂">
+                            <div class="card-badge">智慧梁厂</div>
+                        </div>
+                        <div class="card-content">
+                            <h3 class="card-title">宜昌长江大桥智慧梁厂</h3>
+                            <p class="card-desc">采用预制装配技术、蒸汽养护余热回收系统和低碳混凝土配方，减少碳排放35%。</p>
+                            <div class="card-stats">
+                                <div class="stat-item">
+                                    <div class="stat-value">2,180</div>
+                                    <div class="stat-label">年减排量(吨)</div>
+                                </div>
+                                <div class="stat-item">
+                                    <div class="stat-value">40%</div>
+                                    <div class="stat-label">能耗降低</div>
+                                </div>
+                            </div>
+                            <div class="card-footer">
+                                <span class="card-tag">宜昌</span>
+                                <button class="card-button view-detail-btn"><i class="fas fa-eye"></i> 查看详情</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="pagination">
+                    <button><i class="fas fa-chevron-left"></i></button>
+                    <button class="active">1</button>
+                    <button>2</button>
+                    <button>3</button>
+                    <button><i class="fas fa-chevron-right"></i></button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 详情页 -->
+        <div id="detail-page">
+            <div class="detail-header">
+                <button class="back-button" id="back-button"><i class="fas fa-arrow-left"></i> 返回列表</button>
+                <h2>工程详情</h2>
+            </div>
+
+            <div class="detail-container">
+                <div class="detail-hero">
+                    <img id="detail-hero-img" src="" alt="工程图片">
+                    <div class="detail-badge" id="detail-badge">零碳服务区</div>
+                </div>
+
+                <div class="detail-content">
+                    <h1 class="detail-title" id="detail-title">沪蓉高速青龙山零碳服务区</h1>
+                    
+                    <div class="detail-meta">
+                        <div class="meta-item">
+                            <i class="fas fa-map-marker-alt"></i>
+                            <span id="detail-location">武汉</span>
+                        </div>
+                        <div class="meta-item">
+                            <i class="fas fa-calendar-alt"></i>
+                            <span id="detail-date">2022年6月投入使用</span>
+                        </div>
+                        <div class="meta-item">
+                            <i class="fas fa-ruler-combined"></i>
+                            <span id="detail-area">占地面积: 120亩</span>
+                        </div>
+                        <div class="meta-item">
+                            <i class="fas fa-tools"></i>
+                            <span id="detail-status">运营中</span>
+                        </div>
+                    </div>
+
+                    <div class="detail-section">
+                        <h3 class="section-title">项目概况</h3>
+                        <p class="detail-desc" id="detail-desc">
+                            湖北省首个"光储直柔"零碳服务区，集成光伏发电、储能系统、智慧能源管理平台，实现能源自给自足和碳中和运营。
+                        </p>
+                    </div>
+
+                    <div class="detail-section">
+                        <h3 class="section-title">减排成效</h3>
+                        <div class="stats-grid">
+                            <div class="stat-card">
+                                <div class="stat-value-lg" id="co2-reduction">1,250</div>
+                                <div class="stat-label-lg">年二氧化碳减排量(吨)</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-value-lg" id="energy-self">95%</div>
+                                <div class="stat-label-lg">能源自给率</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-value-lg" id="energy-save">45万</div>
+                                <div class="stat-label-lg">年节约电量(千瓦时)</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-value-lg" id="water-save">3,200</div>
+                                <div class="stat-label-lg">年节约用水(吨)</div>
+                            </div>
+                        </div>
+                        
+                        <div class="chart-container">
+                            <canvas id="reduction-chart"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="detail-section">
+                        <h3 class="section-title">关键技术</h3>
+                        <div class="tech-list">
+                            <div class="tech-item">
+                                <div class="tech-title">光伏发电系统</div>
+                                <div class="tech-desc">装机容量800kW，年发电量约90万千瓦时</div>
+                            </div>
+                            <div class="tech-item">
+                                <div class="tech-title">储能系统</div>
+                                <div class="tech-desc">500kWh储能容量，实现削峰填谷</div>
+                            </div>
+                            <div class="tech-item">
+                                <div class="tech-title">智慧能源管理平台</div>
+                                <div class="tech-desc">实时监控能耗，优化能源分配</div>
+                            </div>
+                            <div class="tech-item">
+                                <div class="tech-title">雨水收集利用</div>
+                                <div class="tech-desc">年收集利用雨水3000吨，用于绿化和冲洗</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="detail-section">
+                        <h3 class="section-title">项目图片</h3>
+                        <div class="gallery">
+                            <div class="gallery-item">
+                                <img src="https://images.unsplash.com/photo-1509391366360-2e959784a276?ixlib=rb-1.2.1&auto=format&fit=crop&w=600&q=80" alt="项目图片1">
+                            </div>
+                            <div class="gallery-item">
+                                <img src="https://images.unsplash.com/photo-1620749725065-42070fc2efaf?ixlib=rb-1.2.1&auto=format&fit=crop&w=600&q=80" alt="项目图片2">
+                            </div>
+                            <div class="gallery-item">
+                                <img src="https://images.unsplash.com/photo-1621330396173-e41b1cafd17f?ixlib=rb-1.2.1&auto=format&fit=crop&w=600&q=80" alt="项目图片3">
+                            </div>
+                            <div class="gallery-item">
+                                <img src="https://images.unsplash.com/photo-15916073883473-9ef158366f46?ixlib=rb-1.2.1&auto=format&fit=crop&w=600&q=80" alt="项目图片4">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <div class="container">
+            <p>湖北交投集团 © 2023 | 低碳示范工程库管理平台</p>
+            <p>技术支持：湖北交投科技发展有限公司</p>
+        </div>
+    </footer>
+
+    <script>
+        // 项目数据
+        const projects = {
+            1: {
+                title: "沪蓉高速青龙山零碳服务区",
+                type: "零碳服务区",
+                location: "武汉",
+                date: "2022年6月投入使用",
+                area: "占地面积: 120亩",
+                status: "运营中",
+                description: "湖北省首个'光储直柔'零碳服务区，集成光伏发电、储能系统、智慧能源管理平台，实现能源自给自足和碳中和运营。服务区采用多项低碳技术，包括建筑节能设计、可再生能源利用、资源循环利用等，年减排二氧化碳达1250吨。",
+                co2Reduction: 1250,
+                energySelf: 95,
+                energySave: 45,
+                waterSave: 3200,
+                image: "https://images.unsplash.com/photo-1581833971358-2c8b550f87b3?ixlib=rb-1.2.1&auto=format&fit=crop&w=600&q=80"
+            },
+            2: {
+                title: "福银高速武当山绿色收费站",
+                type: "绿色收费站",
+                location: "十堰",
+                date: "2021年12月投入使用",
+                area: "占地面积: 15亩",
+                status: "运营中",
+                description: "采用光伏发电、LED智能照明和雨水回收系统，实现能源自给和资源循环利用。收费站屋顶全部铺设光伏板，年发电量达12万千瓦时，可满足收费站全部用电需求。",
+                co2Reduction: 320,
+                energySelf: 100,
+                energySave: 12,
+                waterSave: 800,
+                image: "https://images.unsplash.com/photo-1616587226157-48e49175ee20?ixlib=rb-1.2.1&auto=format&fit=crop&w=600&q=80"
+            },
+            3: {
+                title: "宜昌长江大桥智慧梁厂",
+                type: "智慧梁厂",
+                location: "宜昌",
+                date: "2023年3月投入使用",
+                area: "占地面积: 80亩",
+                status: "运营中",
+                description: "采用预制装配技术、蒸汽养护余热回收系统和低碳混凝土配方，减少碳排放35%。梁厂通过智能化管理系统，优化生产流程，降低能耗和材料浪费。",
+                co2Reduction: 2180,
+                energySelf: 40,
+                energySave: 60,
+                waterSave: 4500,
+                image: "https://images.unsplash.com/photo-1581578021517-ba0f0031fa0f?ixlib=rb-1.2.1&auto=format&fit=crop&w=600&q=80"
+            }
+        };
+
+        // 视图切换功能
+        document.querySelectorAll('.view-option').forEach(option => {
+            option.addEventListener('click', () => {
+                // 移除所有active类
+                document.querySelectorAll('.view-option').forEach(o => o.classList.remove('active'));
+                document.querySelectorAll('.content-area').forEach(c => c.classList.remove('active'));
+                
+                // 添加active类到当前选项和内容
+                option.classList.add('active');
+                const view = option.getAttribute('data-view');
+                document.getElementById(`${view}-view`).classList.add('active');
+            });
+        });
+
+        // 详情按钮点击事件
+        document.querySelectorAll('.view-detail-btn').forEach(button => {
+            button.addEventListener('click', function() {
+                const card = this.closest('.card');
+                const projectId = card.getAttribute('data-id');
+                showProjectDetail(projectId);
+            });
+        });
+
+        // 返回按钮点击事件
+        document.getElementById('back-button').addEventListener('click', function() {
+            showMainPage();
+        });
+
+        // 显示项目详情
+        function showProjectDetail(projectId) {
+            const project = projects[projectId];
+            if (!project) return;
+            
+            // 填充详情页数据
+            document.getElementById('detail-hero-img').src = project.image;
+            document.getElementById('detail-badge').textContent = project.type;
+            document.getElementById('detail-title').textContent = project.title;
+            document.getElementById('detail-location').textContent = project.location;
+            document.getElementById('detail-date').textContent = project.date;
+            document.getElementById('detail-area').textContent = project.area;
+            document.getElementById('detail-status').textContent = project.status;
+            document.getElementById('detail-desc').textContent = project.description;
+            document.getElementById('co2-reduction').textContent = project.co2Reduction.toLocaleString();
+            document.getElementById('energy-self').textContent = project.energySelf + '%';
+            document.getElementById('energy-save').textContent = project.energySave.toLocaleString();
+            document.getElementById('water-save').textContent = project.waterSave.toLocaleString();
+            
+            // 创建减排效果图表
+            createReductionChart(project);
+            
+            // 切换到详情页
+            document.getElementById('main-page').style.display = 'none';
+            document.getElementById('detail-page').style.display = 'block';
+            
+            // 滚动到顶部
+            window.scrollTo(0, 0);
+        }
+
+        // 显示主页面
+        function showMainPage() {
+            document.getElementById('main-page').style.display = 'block';
+            document.getElementById('detail-page').style.display = 'none';
+        }
+
+        // 创建减排效果图表
+        function createReductionChart(project) {
+            const ctx = document.getElementById('reduction-chart').getContext('2d');
+            
+            // 如果已有图表实例，先销毁
+            if (window.reductionChart) {
+                window.reductionChart.destroy();
+            }
+            
+            window.reductionChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['碳排放减少', '能源自给率', '节电量(万kWh)', '节水量(吨)'],
+                    datasets: [{
+                        label: '减排成效',
+                        data: [
+                            project.co2Reduction / 10, // 缩放以便在图表中更好显示
+                            project.energySelf,
+                            project.energySave,
+                            project.waterSave / 100 // 缩放以便在图表中更好显示
+                        ],
+                        backgroundColor: [
+                            'rgba(0, 108, 183, 0.7)',
+                            'rgba(0, 168, 84, 0.7)',
+                            'rgba(247, 147, 30, 0.7)',
+                            'rgba(102, 102, 102, 0.7)'
+                        ],
+                        borderColor: [
+                            'rgb(0, 108, 183)',
+                            'rgb(0, 168, 84)',
+                            'rgb(247, 147, 30)',
+                            'rgb(102, 102, 102)'
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: '数值'
+                            }
+                        }
+                    },
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: '项目减排成效统计',
+                            font: {
+                                size: 16
+                            }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    let label = context.dataset.label || '';
+                                    if (label) {
+                                        label += ': ';
+                                    }
+                                    if (context.dataIndex === 0) {
+                                        label += project.co2Reduction + ' 吨';
+                                    } else if (context.dataIndex === 2) {
+                                        label += project.energySave + ' 万kWh';
+                                    } else if (context.dataIndex === 3) {
+                                        label += project.waterSave + ' 吨';
+                                    } else {
+                                        label += context.parsed.y + '%';
+                                    }
+                                    return label;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // 初始化
+        window.addEventListener('DOMContentLoaded', function() {
+            // 检查URL参数，如果有project参数则直接显示详情页
+            const urlParams = new URLSearchParams(window.location.search);
+            const projectId = urlParams.get('project');
+            if (projectId && projects[projectId]) {
+                showProjectDetail(projectId);
+            }
+        });
+    </script>
+</body>
+</html>
